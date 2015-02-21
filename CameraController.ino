@@ -1,6 +1,6 @@
 #include <Servo.h> 
-//2/20/2015 Organizing this file before migrating to master file
-
+//Finally starting to get the hang of github. 
+:wq
 Servo myservo;  // create servo object, maximum of eight servo objects can be created 
 Servo myservo2; 
 
