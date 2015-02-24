@@ -1,27 +1,29 @@
+//The Gardo Dato Collecto uses a bunch of sensors to collect environmental.
+//Sensors included at this this time are the following:
+//TMP36 
+//PIR Motion Sensor www.sparkfun.com/products/8630 
+//Mini Photocell
 
-//TMP36 Pin Variables
 
-#include <Servo.h> // Include servo library
-int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
-//the resolution is 10 mV / degree centigrade with a
-//500 mV offset to allow for negative temperatures
-Servo servoRight;                            // Declare right ser
-Servo servoLeft;                            // Declare right ser
-int SHT_clockPin = 3;  // pin used for clock
-int SHT_dataPin  = 2;  // pin used for data
-int light1=1; //Value returned from the potentiometer
-int pressure=2; //Value returned from the potentiometer
-int light2=3; //Value returned from the potentiometer
+//Declaring variables
 
-int pirPin = 7; //digital 7
-int pirPin2 = 6; //digital 6
+int sensorPin = 0;      //the analog pin the TMP36's Vout (sense) pin is connected to
+			//the resolution is 10 mV / degree centigrade with a
+			//500 mV offset to allow for negative temperatures
+Servo servoRight;       //Declare right servo
+Servo servoLeft;        //Declare left servo
+int SHT_clockPin = 3;   //Pin used for clock
+int SHT_dataPin  = 2;   //Pin used for data
+int light1=1;           //Value returned from voltage divider 
+int light2=3;           //Value returned from voltage divider 
+int pressure=2;         //Value returned from voltage divider
+int pirPin = 7;         //digital 7
+int pirPin2 = 6;        //digital 6
 int i=1;
 int a=1;
 
 
-/*
-  Web Server
- 
+/* Web Server
  A simple web server that shows the value of the analog input pins.
  using an Arduino Wiznet Ethernet shield. 
  
@@ -29,33 +31,23 @@ int a=1;
  * Ethernet shield attached to pins 10, 11, 12, 13
  * Analog inputs attached to pins A0 through A5 (optional)
  
- created 18 Dec 2009
- by David A. Mellis
- modified 9 Apr 2012
- by Tom Igoe
- 
- */
-//2/20/2015 Organizing this file before migrating to master file
+ created 18 Dec 2009 by David A. Mellis modified 9 Apr 2012 by Tom Igoe */
 
 #include <SPI.h>
 #include <Ethernet.h>
 
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network:
-byte mac[] = { 
-  0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local network 
 IPAddress ip(192,168,0,177);
 EthernetServer server(80);
 
-void setup() {
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-
-    pinMode(pirPin, INPUT);
-    pinMode(pirPin2, INPUT);
-  }
+void setup()
+	{
+	Serial.begin(9600); // Open serial communications and wait for port to open:
+	while (!Serial) 
+		{ ;         // wait for serial port to connect. Needed for Leonardo only
+		pinMode(pirPin, INPUT);
+		pinMode(pirPin2, INPUT);
+		}
 
 
   // start the Ethernet connection and the server:
