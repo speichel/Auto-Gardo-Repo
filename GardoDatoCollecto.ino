@@ -40,265 +40,231 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local ne
 IPAddress ip(192,168,0,177);
 EthernetServer server(80);
 
-void setup()
-	{
-	Serial.begin(9600); // Open serial communications and wait for port to open:
+void setup() {
+	Serial.begin(9600);             // Open serial communications and wait for port to open:
 	while (!Serial) 
-		{ ;         // wait for serial port to connect. Needed for Leonardo only
+		{ ;                     // wait for serial port to connect. Needed for Leonardo only
 		pinMode(pirPin, INPUT);
 		pinMode(pirPin2, INPUT);
 		}
-
-
-  // start the Ethernet connection and the server:
-  Ethernet.begin(mac, ip);
-  server.begin();
-  Serial.print("server is at ");
-  Serial.println(Ethernet.localIP());
-}
-
+					
+	Ethernet.begin(mac, ip);        // start the Ethernet connection and the server:
+	server.begin();
+	Ethernet.begin(mac, ip); 
+	Serial.print("server is at ");
+	Serial.println(Ethernet.localIP());
+	}
 
 void loop() {
-  // listen for incoming clients
-  EthernetClient client = server.available();
-  if (client) {
-    Serial.println("new client");
-    // an http request ends with a blank line
-    boolean currentLineIsBlank = true;
-    while (client.connected()) {
-      if (client.available()) {
-        char c = client.read();
-        Serial.write(c);
-        // if you've gotten to the end of the line (received a newline
-        // character) and the line is blank, the http request has ended,
-        // so you can send a reply
-        if (c == '\n' && currentLineIsBlank) {
-          // send a standard http response header
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");  // the connection will be closed after completion of the response
-          client.println("Refresh: .1");  // refresh the page automatically every 5 sec
-          client.println();
-          client.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-          client.println("<measurementdata>");
+	EthernetClient client = server.available();          // listen for incoming clients
+	if (client) {
+		Serial.println("new client");
+		                                             // an http request ends with a blank line
+		boolean currentLineIsBlank = true;
+		while (client.connected()) {
+			if (client.available()) {
+				char c = client.read();      // if you've gotten to the end of the line (received a newline
+				Serial.write(c);             // so you can send a reply
+						             // send a standard http response header
+				if (c == '\n' && currentLineIsBlank) {
+					client.println("HTTP/1.1 200 OK");
+					client.println("Content-Type: text/html");
+					client.println("Connection: close");         // the connection will be closed after completion of the response
+					client.println("Refresh: .1");               // refresh the page automatically every 5 sec
+					client.println();
+					client.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+					client.println("<measurementdata>");
 
-          int soilmoisture = analogRead(5);                 
-          char soil[10];
-          String soilAsString;
-          String soilString;
-          dtostrf(soilmoisture,1,2,soil);
-          soilAsString = String(soil);
-          soilString = soilAsString + ",";
-          client.println(soilString);
+					int soilmoisture = analogRead(5);                 
+					char soil[10];
+					String soilAsString;
+					String soilString;
+					dtostrf(soilmoisture,1,2,soil);
+					soilAsString = String(soil);
+					soilString = soilAsString + ",";
+					client.println(soilString);
 
-          // Motion
-          int pirVal = digitalRead(pirPin);                 
-          int pirVal2 = digitalRead(pirPin2);
-          if(pirVal == LOW)
-          { //was motion detected
-            client.println("1,"); 
-            delay(500); 
-          }
-          else
-          {
-            client.println("0,"); 
-          }
+					// Motion
+					int pirVal = digitalRead(pirPin);                 
+					int pirVal2 = digitalRead(pirPin2);
 
-          if(pirVal2 == LOW)
-          { //was motion detected
-            client.println("1,"); 
-            delay(500); 
-            a=1+a;
-            client.println(a);
-          }  
-          else
-          {
-            client.println("0,"); 
-          }
+					if(pirVal == LOW) { 
+						client.println("1,");             //was motion detected 
+						delay(500); 
+						} else {
+							client.println("0,"); 
+							}
 
-          float temperature = getTemperature();
-          float temperature2 = (temperature * 9.0 / 5.0) + 32.0;
-          char temp[10];
-          String tempAsString;
-          String tempString;
-          dtostrf(temperature2,1,2,temp);
-          tempAsString = String(temp);
-          tempString = tempAsString + ",";
-          client.println(tempString);
+					if(pirVal2 == LOW) { 
+						client.println("1,");             //was motion detected
+						delay(500); 
+						a=1+a;
+						client.println(a);
+						} else {
+							client.println("0,"); 
+							}
 
-          float humidity = getHumidity();
-          char hum[10];
-          String humAsString;
-          String humidityString;
-          dtostrf(humidity,1,2,hum);
-          humAsString = String(hum);
-          humidityString = humAsString + ",";
-          client.println(humidityString);
+					float temperature = getTemperature();
+					float temperature2 = (temperature * 9.0 / 5.0) + 32.0;
+					char temp[10];
+					String tempAsString;
+					String tempString;
+					dtostrf(temperature2,1,2,temp);
+					tempAsString = String(temp);
+					tempString = tempAsString + ",";
+					client.println(tempString);
 
-          light1=analogRead(1); 
-          char light[10];
-          String lightAsString;
-          String lightString;
-          dtostrf(light1,1,2,light);
-          lightAsString = String(light);
-          lightString = lightAsString + ",";
-          client.println(lightString);
+					float humidity = getHumidity();
+					char hum[10];
+					String humAsString;
+					String humidityString;
+					dtostrf(humidity,1,2,hum);
+					humAsString = String(hum);
+					humidityString = humAsString + ",";
+					client.println(humidityString);
 
-          pressure=analogRead(2);
-          char pres[10];
-          String pressureAsString;
-          String pressureString;
-          dtostrf(pressure,1,2,pres);
-          pressureAsString = String(pres);
-          pressureString = pressureAsString + ",";
-          client.println(pressureString);
+					light1=analogRead(1); 
+					char light[10];
+					String lightAsString;
+					String lightString;
+					dtostrf(light1,1,2,light);
+					lightAsString = String(light);
+					lightString = lightAsString + ",";
+					client.println(lightString);
 
-          light2=analogRead(3);
-          char lig[10];
-          String light2AsString;
-          String light2String;
-          dtostrf(light2,1,2,lig);
-          light2AsString = String(lig);
-          light2String = light2AsString + ",";
-          client.println(light2String);
+					pressure=analogRead(2);
+					char pres[10];
+					String pressureAsString;
+					String pressureString;
+					dtostrf(pressure,1,2,pres);
+					pressureAsString = String(pres);
+					pressureString = pressureAsString + ",";
+					client.println(pressureString);
 
-          //getting the voltage reading from the temperature sensor
-          int reading = analogRead(sensorPin); 
-          float voltage = reading * 5.0;
-          voltage /= 1024.0; 
-          float temperatureC = (voltage - 0.5) * 100; 
-          float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;                      
-          char tempe[10];
-          String temperatureFAsString;
-          String temperatureFString;
-          dtostrf(temperatureF,1,2,tempe);
-          temperatureFAsString = String(tempe);
-          temperatureFString = temperatureFAsString + ",";
-          client.println(temperatureFString);
+					light2=analogRead(3);
+					char lig[10];
+					String light2AsString;
+					String light2String;
+					dtostrf(light2,1,2,lig);
+					light2AsString = String(lig);
+					light2String = light2AsString + ",";
+					client.println(light2String);
 
+					//getting the voltage reading from the temperature sensor
+					int reading = analogRead(sensorPin); 
+					float voltage = reading * 5.0;
+					voltage /= 1024.0; 
+					float temperatureC = (voltage - 0.5) * 100; 
+					float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;                      
+					char tempe[10];
+					String temperatureFAsString;
+					String temperatureFString;
+					dtostrf(temperatureF,1,2,tempe);
+					temperatureFAsString = String(tempe);
+					temperatureFString = temperatureFAsString + ",";
+					client.println(temperatureFString);
+					client.println(soilString);   
 
-          client.println(soilString);   
+					delay(5000);                                     //waiting a second
 
-          delay(5000);                                     //waiting a second
+					String measurementdata;
+					measurementdata = "</measurementdata>";
+					client.println(measurementdata);
 
-          String measurementdata;
-          measurementdata = "</measurementdata>";
-          client.println(measurementdata);
+					break;
+					}
 
-
-
-          break;
-
-
-
-        }
-        if (c == '\n') {
-          // you're starting a new line
-          currentLineIsBlank = true;
-        } 
-        else if (c != '\r') {
-          // you've gotten a character on the current line
-          currentLineIsBlank = false;
-        }
-      }
-    }
-    // give the web browser time to receive the data
-    delay(1);
-    // close the connection:
-    client.stop();
-    Serial.println("client disonnected");
-  }
-}
-
+				if (c == '\n') {
+					// you're starting a new line
+					currentLineIsBlank = true;
+					} else if (c != '\r') {
+						// you've gotten a character on the current line
+						currentLineIsBlank = false;
+						}
+				}
+			}
+		delay(1);          // give the web browser time to receive the data
+		client.stop();     // close the connection:
+		Serial.println("client disonnected");
+		}
+	}
 
 float getTemperature(){
-  //Return Temperature in Celsius
-  SHT_sendCommand(B00000011, SHT_dataPin, SHT_clockPin);
-  SHT_waitForResult(SHT_dataPin);
+	SHT_sendCommand(B00000011, SHT_dataPin, SHT_clockPin);  //Return Temperature in Celsius
+	SHT_waitForResult(SHT_dataPin);
 
-  int val = SHT_getData(SHT_dataPin, SHT_clockPin);
-  SHT_skipCrc(SHT_dataPin, SHT_clockPin);
-  return (float)val * 0.01 - 40; //convert to celsius
-}
+	int val = SHT_getData(SHT_dataPin, SHT_clockPin);
+	SHT_skipCrc(SHT_dataPin, SHT_clockPin);
+	return (float)val * 0.01 - 40;                          //Convert to celsius
+	}
 
 float getHumidity(){
-  //Return  Relative Humidity
-  SHT_sendCommand(B00000101, SHT_dataPin, SHT_clockPin);
-  SHT_waitForResult(SHT_dataPin);
-  int val = SHT_getData(SHT_dataPin, SHT_clockPin);
-  SHT_skipCrc(SHT_dataPin, SHT_clockPin);
-  return -4.0 + 0.0405 * val + -0.0000028 * val * val; 
-}
+	SHT_sendCommand(B00000101, SHT_dataPin, SHT_clockPin);  //Return  Relative Humidity
+	SHT_waitForResult(SHT_dataPin);
+	int val = SHT_getData(SHT_dataPin, SHT_clockPin);
+	SHT_skipCrc(SHT_dataPin, SHT_clockPin);
+	return -4.0 + 0.0405 * val + -0.0000028 * val * val; 
+	}
 
+void SHT_sendCommand(int command, int dataPin, int clockPin){   //Send a command to the SHTx sensor
+								//Transmission start
+	pinMode(dataPin, OUTPUT);
+	pinMode(clockPin, OUTPUT);
+	digitalWrite(dataPin, HIGH);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(dataPin, LOW);
+	digitalWrite(clockPin, LOW);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(dataPin, HIGH);
+	digitalWrite(clockPin, LOW);
+	shiftOut(dataPin, clockPin, MSBFIRST, command);         //Shift out the command (the 3 MSB are address and must be 000, the last 5 bits are the command)
+	digitalWrite(clockPin, HIGH);                           //Verify we get the right ACK
+	pinMode(dataPin, INPUT);
 
-void SHT_sendCommand(int command, int dataPin, int clockPin){
-  // send a command to the SHTx sensor
-  // transmission start
-  pinMode(dataPin, OUTPUT);
-  pinMode(clockPin, OUTPUT);
-  digitalWrite(dataPin, HIGH);
-  digitalWrite(clockPin, HIGH);
-  digitalWrite(dataPin, LOW);
-  digitalWrite(clockPin, LOW);
-  digitalWrite(clockPin, HIGH);
-  digitalWrite(dataPin, HIGH);
-  digitalWrite(clockPin, LOW);
+	if (digitalRead(dataPin)) Serial.println("ACK error 0");
+		digitalWrite(clockPin, LOW);
 
-  // shift out the command (the 3 MSB are address and must be 000, the last 5 bits are the command)
-  shiftOut(dataPin, clockPin, MSBFIRST, command);
-
-  // verify we get the right ACK
-  digitalWrite(clockPin, HIGH);
-  pinMode(dataPin, INPUT);
-
-  if (digitalRead(dataPin)) Serial.println("ACK error 0");
-  digitalWrite(clockPin, LOW);
-  if (!digitalRead(dataPin)) Serial.println("ACK error 1");
-}
+	if (!digitalRead(dataPin)) Serial.println("ACK error 1")
+		//No Action
+	}
 
 
 void SHT_waitForResult(int dataPin){
-  // wait for the SHTx answer
-  pinMode(dataPin, INPUT);
+	pinMode(dataPin, INPUT);                               //Wait for the SHTx answer
+	int ack;                                               //Acknowledgement
 
-  int ack; //acknowledgement
+	for (int i = 0; i < 1000; ++i){
+		delay(2);                                      //Need to wait up to 2 seconds for the value ack = digitalRead(dataPin);
+		if (ack == LOW) break;
+		}
 
-  //need to wait up to 2 seconds for the value
-  for (int i = 0; i < 1000; ++i){
-    delay(2);
-    ack = digitalRead(dataPin);
-    if (ack == LOW) break;
-  }
+	if (ack == HIGH) Serial.println("ACK error 2");
+	}
 
-  if (ack == HIGH) Serial.println("ACK error 2");
-}
+int SHT_getData(int dataPin, int clockPin){                    //Get data from the SHTx sensor
+	pinMode(dataPin, INPUT);                               //Get the MSB (most significant bits)
+	pinMode(clockPin, OUTPUT);
+	byte MSB = shiftIn(dataPin, clockPin, MSBFIRST);
 
-int SHT_getData(int dataPin, int clockPin){
-  // get data from the SHTx sensor
+	pinMode(dataPin, OUTPUT);                              //Send the required ACK
+	pinMode(dataPin, OUTPUT);
+	digitalWrite(dataPin, HIGH);
+	digitalWrite(dataPin, LOW);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(clockPin, LOW);
 
-  // get the MSB (most significant bits)
-  pinMode(dataPin, INPUT);
-  pinMode(clockPin, OUTPUT);
-  byte MSB = shiftIn(dataPin, clockPin, MSBFIRST);
-
-  // send the required ACK
-  pinMode(dataPin, OUTPUT);
-  digitalWrite(dataPin, HIGH);
-  digitalWrite(dataPin, LOW);
-  digitalWrite(clockPin, HIGH);
-  digitalWrite(clockPin, LOW);
-
-  // get the LSB (less significant bits)
-  pinMode(dataPin, INPUT);
-  byte LSB = shiftIn(dataPin, clockPin, MSBFIRST);
-  return ((MSB << 8) | LSB); //combine bits
-}
+	// get the LSB (less significant bits)
+	pinMode(dataPin, INPUT);                               //Get the LSB (less significant bits)
+	pinMode(dataPin, INPUT);
+	byte LSB = shiftIn(dataPin, clockPin, MSBFIRST);
+	return ((MSB << 8) | LSB);                             //Combine bits
+	}
 
 void SHT_skipCrc(int dataPin, int clockPin){
-  // skip CRC data from the SHTx sensor
-  pinMode(dataPin, OUTPUT);
-  pinMode(clockPin, OUTPUT);
-  digitalWrite(dataPin, HIGH);
-  digitalWrite(clockPin, HIGH);
-  digitalWrite(clockPin, LOW);
-}
+	// skip CRC data from the SHTx sensor
+	pinMode(dataPin, OUTPUT);
+	pinMode(clockPin, OUTPUT);
+	digitalWrite(dataPin, HIGH);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(clockPin, LOW);
+	}
