@@ -69,8 +69,8 @@ void loop() {
 				if (c == '\n' && currentLineIsBlank) {
 					client.println("HTTP/1.1 200 OK");
 					client.println("Content-Type: text/html");
-					client.println("Connection: close");         // the connection will be closed after completion of the response
-					client.println("Refresh: .1");               // refresh the page automatically every 5 sec
+					client.println("Connection: close"); //Connection closes after response complete
+					client.println("Refresh: .1");       //5 sec auto refresh page 
 					client.println();
 					client.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 					client.println("<measurementdata>");
@@ -217,7 +217,9 @@ void SHT_sendCommand(int command, int dataPin, int clockPin){   //Send a command
 	digitalWrite(clockPin, HIGH);
 	digitalWrite(dataPin, HIGH);
 	digitalWrite(clockPin, LOW);
-	shiftOut(dataPin, clockPin, MSBFIRST, command);         //Shift out the command (the 3 MSB are address and must be 000, the last 5 bits are the command)
+	shiftOut(dataPin, clockPin, MSBFIRST, command);         //Shift out the command 
+                                                                //The 3 MSB are address and must be 000
+                                                                //The last 5 bits are the command
 	digitalWrite(clockPin, HIGH);                           //Verify we get the right ACK
 	pinMode(dataPin, INPUT);
 
@@ -234,7 +236,7 @@ void SHT_waitForResult(int dataPin){
 	int ack;                                               //Acknowledgement
 
 	for (int i = 0; i < 1000; ++i){
-		delay(2);                                      //Need to wait up to 2 seconds for the value ack = digitalRead(dataPin);
+		delay(2);                                      //Need 2 sec wait for value ack = digitalRead(dataPin);
 		if (ack == LOW) break;
 		}
 
@@ -253,15 +255,13 @@ int SHT_getData(int dataPin, int clockPin){                    //Get data from t
 	digitalWrite(clockPin, HIGH);
 	digitalWrite(clockPin, LOW);
 
-	// get the LSB (less significant bits)
 	pinMode(dataPin, INPUT);                               //Get the LSB (less significant bits)
 	pinMode(dataPin, INPUT);
 	byte LSB = shiftIn(dataPin, clockPin, MSBFIRST);
 	return ((MSB << 8) | LSB);                             //Combine bits
 	}
 
-void SHT_skipCrc(int dataPin, int clockPin){
-	// skip CRC data from the SHTx sensor
+void SHT_skipCrc(int dataPin, int clockPin){                   //Skip CRC data from the SHTx sensor
 	pinMode(dataPin, OUTPUT);
 	pinMode(clockPin, OUTPUT);
 	digitalWrite(dataPin, HIGH);
