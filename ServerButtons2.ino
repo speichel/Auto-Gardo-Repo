@@ -74,7 +74,6 @@ void loop() {
 
 	int led=0;
 	if (client) {
-
 		// an http request ends with a blank line
 
 		boolean current_line_is_blank = true;
@@ -227,4 +226,4 @@ void loop() {
 					inString = "";
 					client.stop();
 					}
-}
+				}  
