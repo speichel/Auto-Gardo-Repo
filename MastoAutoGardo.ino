@@ -145,7 +145,7 @@ void setup() {
 	Serial.print("server is at ");
 	Serial.println(Ethernet.localIP()); 
 
-//Sabertooth setup
+	//Sabertooth setup
 
 	SabertoothTXPinSerial.begin(9600); // This is the baud rate you chose with the DIP switches.             
 	ST.drive(0);                       // The Sabertooth won't act on mixed mode until
@@ -293,6 +293,58 @@ void loop() {
 		delay(1);          // give the web browser time to receive the data
 		client.stop();     // close the connection:
 		Serial.println("client disonnected");
+		}
+
+	//Insert section of code for navigation
+
+	long RangeInCentimeters7;
+	long RangeInCentimeters5;
+	float distance7;
+	float distance5;
+
+	ultrasonic7.DistanceMeasure();// get the current signal time;
+	ultrasonic5.DistanceMeasure();// get the current signal time;
+
+	RangeInCentimeters7 = ultrasonic7.microsecondsToCentimeters();//convert the time to centimeters
+	RangeInCentimeters5 = ultrasonic5.microsecondsToCentimeters();//convert the time to centimeters
+
+							//Serial.println("The distance to obstacles in front is: ");
+	distance7 = RangeInCentimeters7/2.54;
+	distance5 = RangeInCentimeters5/2.54;
+							//Serial.print(distance);//0~400cm and 0~157 inches
+							//Serial.println(" inches-decimal");
+	delay(10);
+
+							// Left and right proportional control calculations
+	sonar_turning = distance7;
+	sonar_front = distance5;
+	
+	distance_setting_turning = 12;
+	distance_setting_front = 18;  
+	
+	int calc_sonar_turning = (distance_setting_turning - sonar_turning) * kpr;
+
+	if (sonar_front >= 24 && sonar_front <= 12)  
+		{
+		  a = a;
+		} else if (sonar_front > 24) 
+		{
+		  a = 1;
+		} else if (sonar_front<12)
+		{
+		  a = -1;
+		}
+
+	maneuver(distance_setting_turning, calc_sonar_turning, distance_setting_front, sonar_front, 20, a);       // Drive levels set speeds
+
+	if ( i > 110 )
+		{
+		  Serial.println("Inside Main Program: ");
+		  Serial.println("***Leaving Main Program*** ");
+		} 
+		else
+		{
+		//nothing
 		}
 	}
 
