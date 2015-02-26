@@ -66,6 +66,22 @@ int a = 1;
 int b = 0;
 int c = 0;
 
+int sensorPin = 0;      //the analog pin the TMP36's Vout (sense) pin is connected to
+			//the resolution is 10 mV / degree centigrade with a
+			//500 mV offset to allow for negative temperatures
+Servo servoRight;       //Declare right servo
+Servo servoLeft;        //Declare left servo
+int SHT_clockPin = 3;   //Pin used for clock
+int SHT_dataPin  = 2;   //Pin used for data
+int light1=1;           //Value returned from voltage divider 
+int light2=3;           //Value returned from voltage divider 
+int pressure=2;         //Value returned from voltage divider
+int pirPin = 7;         //digital 7
+int pirPin2 = 6;        //digital 6
+int i_1=1;
+int a_1=1;
+
+
 class Ultrasonic {
 	public:
 	  Ultrasonic(int pin);
