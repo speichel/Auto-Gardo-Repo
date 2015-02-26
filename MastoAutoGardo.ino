@@ -9,22 +9,6 @@
 
 //Declaring variables
 
-int sensorPin = 0;      //the analog pin the TMP36's Vout (sense) pin is connected to
-			//the resolution is 10 mV / degree centigrade with a
-			//500 mV offset to allow for negative temperatures
-Servo servoRight;       //Declare right servo
-Servo servoLeft;        //Declare left servo
-int SHT_clockPin = 3;   //Pin used for clock
-int SHT_dataPin  = 2;   //Pin used for data
-int light1=1;           //Value returned from voltage divider 
-int light2=3;           //Value returned from voltage divider 
-int pressure=2;         //Value returned from voltage divider
-int pirPin = 7;         //digital 7
-int pirPin2 = 6;        //digital 6
-int i=1;
-int a=1;
-
-
 /* Web Server
  A simple web server that shows the value of the analog input pins.
  using an Arduino Wiznet Ethernet shield. 
@@ -146,6 +130,9 @@ void maneuver(int distance_setting_turning, int calc_sonar_turning, int distance
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local network 
 IPAddress ip(192,168,0,177);
 EthernetServer server(80);
+
+Ultrasonic ultrasonic7(7);
+Ultrasonic ultrasonic5(5);
 
 void setup() {
 	Serial.begin(9600);             // Open serial communications and wait for port to open:
@@ -347,7 +334,6 @@ void loop() {
 		{
 		  a = 1;
 		} else if (sonar_front<12)
-		{
 		  a = -1;
 		}
 
@@ -401,7 +387,7 @@ void SHT_sendCommand(int command, int dataPin, int clockPin){   //Send a command
 	if (digitalRead(dataPin)) Serial.println("ACK error 0");
 		digitalWrite(clockPin, LOW);
 
-	if (!digitalRead(dataPin)) Serial.println("ACK error 1")
+	if (!digitalRead(dataPin)) Serial.println("ACK error 1");
 		//No Action
 	}
 
