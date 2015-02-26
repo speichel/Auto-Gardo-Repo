@@ -125,7 +125,7 @@ void maneuver(int distance_setting_turning, int calc_sonar_turning, int distance
 		  i=0;
 		} else
 		i=i+1;
-
+	}
 
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local network 
 IPAddress ip(192,168,0,177);
@@ -335,7 +335,7 @@ void loop() {
 		  a = 1;
 		} else if (sonar_front<12)
 		  a = -1;
-		}
+	
 
 	maneuver(distance_setting_turning, calc_sonar_turning, distance_setting_front, sonar_front, 20, a);       // Drive levels set speeds
 
