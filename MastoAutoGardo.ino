@@ -24,6 +24,7 @@
 #include "Arduino.h"
 #include <Servo.h>                           // Include servo library
 #include <SabertoothSimplified.h>
+#include <avr/pgmspace.h>
 
 Servo myservo;           //Initialize servo 
 Servo myservo2;          //Initialize servo2  
@@ -95,7 +96,55 @@ int pirPin2 = 6;        //digital 6
 int i_1=1;
 int a_1=1;
 
+//Variables for Serever Buttons
+char const string_0[] PROGMEM = "<html><body><h2>Controle de LED pela Internet</h2><font size= 4><form method=GET>";
+char const string_1[] PROGMEM = "<br><input type=submit name=b1 value=ForwardMotion>";
+char const string_2[] PROGMEM = "<br><input type=submit name=b2 value=BackwardMotion>";
+char const string_3[] PROGMEM = "<br><input type=submit name=b3 value=RightMotion>";
+char const string_4[] PROGMEM = "<br><input type=submit name=b4 value=LeftMotion>";
+char const string_5[] PROGMEM = "";  //"<br>Insert your name here:";
+char const string_6[] PROGMEM = "";  //"<input name=msg value=no_name MAXLENGTH=20>";
+char const string_7[] PROGMEM = "</form></body></html>";
+char const string_8[] PROGMEM = "Motion(ON)";
+char const string_9[] PROGMEM = "Motion (OFF)";
+char const string_10[] PROGMEM = "<meta http-equiv=refresh content=30 > ";   //Auto refresh
 
+PGM_P const string_table[] PROGMEM = //Change "string_table" name to suit
+{  
+string_0,
+string_1,
+string_2,
+string_3,
+string_4,
+string_5,
+string_6,
+string_7,
+string_8,
+string_9,
+string_10
+};
+
+char buffer[85];    //Make sure large enough for the largest string
+
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };
+IPAddress ip(192,168,0,177);
+byte gateway[] = { 192, 168, 1, 1 };
+byte subnet[] = { 255, 255, 255, 0 };
+
+String inString = String(35);
+
+EthernetServer server(80);
+
+boolean ForwardMotion = false;
+boolean BackwardMotion = false;
+boolean RightMotion = false;
+boolean LeftMotion = false;
+
+String msg="";
+int tam=0;
+int st1=9,st2=9,st3=9,st4=9;
+
+//Subprograms, first chunk from Sabo Codo 
 class Ultrasonic {
 	public:
 	  Ultrasonic(int pin);
@@ -172,8 +221,8 @@ void setup() {
 		pinMode(pirPin2, INPUT);
 		}
 					
-	Ethernet.begin(mac, ip);        // start the Ethernet connection and the server:
-	server.begin();
+	Ethernet.begin(mac, ip,gateway,subnet);        //Start the Ethernet connection and the server:
+	server.begin();                                //Recently added gateway and subnect, this was in ServerButto 
 	Ethernet.begin(mac, ip); 
 	Serial.print("server is at ");
 	Serial.println(Ethernet.localIP()); 
@@ -206,6 +255,11 @@ void setup() {
 	pinMode(led2Pin, OUTPUT);
 	pinMode(led3Pin, OUTPUT);
 	pinMode(led4Pin, OUTPUT);
+
+	pinMode(4,OUTPUT);
+	pinMode(5,OUTPUT);
+	pinMode(6,OUTPUT);
+	pinMode(7,OUTPUT);
 	}
 
 void loop() {
