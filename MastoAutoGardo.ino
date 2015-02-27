@@ -206,9 +206,9 @@ void maneuver(int distance_setting_turning, int calc_sonar_turning, int distance
 		i=i+1;
 	}
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local network 
-IPAddress ip(192,168,0,177);
-EthernetServer server(80);
+//byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x4A, 0xFD  };  //The IP address local network 
+//IPAddress ip(192,168,0,177);
+//EthernetServer server(80);
 
 Ultrasonic ultrasonic7(7);
 Ultrasonic ultrasonic5(5);
