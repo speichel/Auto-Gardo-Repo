@@ -424,14 +424,12 @@ void loop() {
 	
 	int calc_sonar_turning = (distance_setting_turning - sonar_turning) * kpr;
 
-	if (sonar_front >= 24 && sonar_front <= 12)  
-		{
-		  a = a;
-		} else if (sonar_front > 24) 
-		{
-		  a = 1;
+	if (sonar_front >= 24 && sonar_front <= 12) {
+		a = a;
+		} else if (sonar_front > 24) {
+		a = 1;
 		} else if (sonar_front<12)
-		  a = -1;
+		a = -1;
 	
 
 	maneuver(distance_setting_turning, calc_sonar_turning, distance_setting_front, sonar_front, 20, a);       // Drive levels set speeds
@@ -493,7 +491,167 @@ void loop() {
 		} else
 		digitalWrite(led4Pin,LOW);
 		delay(15);                       // waits 15ms for the servo to reach the position 
-	}	
+	
+	//Servo Buttons
+	int led=0;
+	if (client) {
+		// an http request ends with a blank line
+
+		boolean current_line_is_blank = true;
+		while (client.connected()) {
+			if (client.available()) {
+				char c = client.read();  //If end of the line, then received a newline character
+							 //If the line is blank, then http request has ended
+							 //and so we can send a reply
+				if (inString.length() < 35) {
+					inString.concat(c);
+					}
+
+				if (c == '\n' && current_line_is_blank) {
+					if(inString.indexOf("b1")>0){
+						if(ForwardMotion==false){
+							st1=8;
+							ForwardMotion=true;
+							digitalWrite(4,HIGH);
+							} else {
+								st1=9;
+								ForwardMotion=false;
+								digitalWrite(4,LOW);
+							}
+						led=1;
+						}
+					if(inString.indexOf("b2")>0){
+						if(BackwardMotion==false){
+							st2=8;
+							BackwardMotion=true;
+							digitalWrite(5,HIGH);
+							} else {
+								st2=9;
+								BackwardMotion=false;
+								digitalWrite(5,LOW);
+								}
+						led=2;  
+						}
+					 if(inString.indexOf("b3")>0){
+						if(RightMotion==false){
+							 st3=8;
+							 RightMotion=true;
+							 digitalWrite(6,HIGH);
+							 } else {
+								 st3=9;
+								 RightMotion=false;
+								 digitalWrite(6,LOW);
+								 }
+						 led=3;
+						 }
+					if(inString.indexOf("b4")>0){
+						 if(LeftMotion==false){
+							 st4=8;
+							 LeftMotion=true;
+							 digitalWrite(7,HIGH);
+							 } else {
+								 st4=9;
+								 LeftMotion=false;
+								 digitalWrite(7,LOW);
+								 }
+						 led=4;
+						 }
+					/* if(inString.indexOf("msg")>0){
+						 char charBuf1[50];
+						 char charBuf2[50];
+						 strcpy(msg,(char*)inString.substring(inString.indexOf("g")+2,inString.indexOf(" H")));                        
+						 //Serial.print("msg: ");
+						 Serial.println(msg);
+						 } */
+
+					// send a standard http response header
+					client.println("HTTP/1.1 200 OK");
+					client.println("Content-Type: text/html");
+					client.println();
+
+					strcpy_P(buffer, (char*)pgm_read_word(&(string_table[0]))); // Necessary casts and dereferencing, just copy.
+					client.println( buffer );
+					for (int i = 1; i < 8; i++) {
+						strcpy_P(buffer, (char*)pgm_read_word(&(string_table[i]))); // Necessary casts and dereferencing, just copy.
+						client.println( buffer );
+						switch(i){
+							case 1: strcpy_P(buffer, (char*)pgm_read_word(&(string_table[st1]))); client.println( buffer ); break;
+							case 2: strcpy_P(buffer, (char*)pgm_read_word(&(string_table[st2]))); client.println( buffer ); break;
+							case 3: strcpy_P(buffer, (char*)pgm_read_word(&(string_table[st3]))); client.println( buffer ); break;
+							case 4: strcpy_P(buffer, (char*)pgm_read_word(&(string_table[st4]))); client.println( buffer ); break;
+							}
+						delay(30);
+						}
+
+					if(digitalRead(4)==HIGH){
+						client.println("<br>ForwardMotion, ON</br>");
+						servoRight.writeMicroseconds(2200);        //Right wheel clockwise
+						servoLeft.writeMicroseconds(800);          //Left wheel clockwise
+						delay(1000); 
+						} else {
+							client.println("<br>ForwardMotion, OFF</br>");
+							servoRight.writeMicroseconds(1513);//Stay still
+							servoLeft.writeMicroseconds(1500); //Stay stil
+							delay(1);
+							}
+					if(digitalRead(5)== HIGH){
+						client.println("<br>BackwardMotion, ON</br>");
+						servoRight.writeMicroseconds(800);         //Right wheel clockwise
+						servoLeft.writeMicroseconds(2200);         //Left wheel clockwise
+						delay(1000); 
+						} else {
+							client.println("<br>BackwardMotion, OFF</br>");
+							servoRight.writeMicroseconds(1513);//Stay still
+							servoLeft.writeMicroseconds(1500); //Stay still
+							delay(1);         
+							}
+					if(digitalRead(6)==HIGH){
+						client.println("<br>Right, ON</br>");
+						servoRight.writeMicroseconds(800);         //Right wheel clockwise
+						servoLeft.writeMicroseconds(800);          //Left wheel clockwise
+						delay(1000); 
+						} else {
+							client.println("<br>Right, OFF</br>");
+							servoRight.writeMicroseconds(1513);//Stay still
+							servoLeft.writeMicroseconds(1500); //Stay still
+							delay(1);
+							}
+					if(digitalRead(7)==HIGH){
+						client.println("<br>Left, ON</br>");
+						servoRight.writeMicroseconds(2200);        //Right wheel clockwise
+						servoLeft.writeMicroseconds(2200);         //Left wheel clockwise
+						delay(1000); 
+						servoRight.writeMicroseconds(1513);        //Stay still
+						servoLeft.writeMicroseconds(1500);         //Stay still
+						delay(1000);
+						} else {
+							client.println("<br>Left, OFF</br>");
+							servoRight.writeMicroseconds(1513);//Stay still
+							servoLeft.writeMicroseconds(1500); //Stay still
+							delay(1);
+							}
+						//strcpy_P(buffer, (char*)pgm_read_word(&(string_table[10]))); client.println( buffer );
+						break;
+						}
+					if (c == '\n') {
+						// we're starting a new line
+						current_line_is_blank = true;
+						} else if (c != '\r') {
+							// we've gotten a character on the current line
+							current_line_is_blank = false;
+							}
+						}
+				}
+			// give the web browser time to receive the data
+			delay(1);
+			inString = "";
+			client.stop();
+		}
+	
+	
+	
+	
+}	
 
 float getTemperature(){
 	SHT_sendCommand(B00000011, SHT_dataPin, SHT_clockPin);  //Return Temperature in Celsius
