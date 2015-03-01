@@ -10,8 +10,6 @@
 int sensorPin = 0;      //the analog pin the TMP36's Vout (sense) pin is connected to
 			//the resolution is 10 mV / degree centigrade with a
 			//500 mV offset to allow for negative temperatures
-Servo servoRight;       //Declare right servo
-Servo servoLeft;        //Declare left servo
 int SHT_clockPin = 3;   //Pin used for clock
 int SHT_dataPin  = 2;   //Pin used for data
 int light1=1;           //Value returned from voltage divider 
@@ -226,7 +224,7 @@ void SHT_sendCommand(int command, int dataPin, int clockPin){   //Send a command
 	if (digitalRead(dataPin)) Serial.println("ACK error 0");
 		digitalWrite(clockPin, LOW);
 
-	if (!digitalRead(dataPin)) Serial.println("ACK error 1")
+	if (!digitalRead(dataPin)) Serial.println("ACK error 1");
 		//No Action
 	}
 
