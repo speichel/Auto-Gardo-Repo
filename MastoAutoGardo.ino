@@ -264,9 +264,12 @@ void setup() {
 
 void loop() {
 	EthernetClient client = server.available();          // listen for incoming clients
+
+	int led=0;
 	if (client) {
 		Serial.println("new client");
 		                                             // an http request ends with a blank line
+		boolean current_line_is_blank = true;
 		boolean currentLineIsBlank = true;
 		while (client.connected()) {
 			if (client.available()) {
@@ -528,12 +531,11 @@ void loop() {
 							current_line_is_blank = false;
 							}
 						}
-}
+				}
 			}
 		delay(1);          // give the web browser time to receive the data
 		client.stop();     // close the connection:
 		Serial.println("client disonnected");
-		}
 
 	//Insert section of code for navigation
 
@@ -791,8 +793,7 @@ void loop() {
 	
 	
 	
-}	
-
+	}	
 float getTemperature(){
 	SHT_sendCommand(B00000011, SHT_dataPin, SHT_clockPin);  //Return Temperature in Celsius
 	SHT_waitForResult(SHT_dataPin);
