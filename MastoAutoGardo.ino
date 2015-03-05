@@ -1,3 +1,4 @@
+//Needed to alter because the button server code is not working with the data collection code
 //Master Auto Gardo Project// 
 
 //The Gardo Dato Collecto uses a bunch of sensors to collect environmental.
