@@ -1,3 +1,4 @@
+This is testing Reset function
 //Master Auto Gardo Project// 
 
 //The Gardo Dato Collecto uses a bunch of sensors to collect environmental.
