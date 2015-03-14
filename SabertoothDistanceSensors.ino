@@ -53,6 +53,7 @@ int a = 1;
 int b = 0;
 int c = 0;
 
+
 class Ultrasonic {
 	public:
 	  Ultrasonic(int pin);
@@ -113,7 +114,11 @@ void maneuver(int distance_setting_turning, int calc_sonar_turning, int distance
 		  i=0;
 		} else
 		i=i+1;
-
+        }
+    
+    
+        
+        
 void setup()
 	{
 	SabertoothTXPinSerial.begin(9600); // This is the baud rate you chose with the DIP switches.             
@@ -130,6 +135,9 @@ void setup()
 	                                   // In this sample, the SLOW sweep (left-to-right) here is turning,
 	                                   // and the FAST sweep (backwards-to-forwards) is throttle.
 	}
+
+Ultrasonic ultrasonic7(7);
+Ultrasonic ultrasonic5(5);
 
 void loop()
 	{
