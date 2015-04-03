@@ -53,19 +53,38 @@ int a = 1;
 int b = 0;
 int c = 0;
 
+//Camerial Variables
+
+Servo myservo;  // create servo object, maximum of eight servo objects can be created 
+Servo myservo2; 
+
+int pos = 90;    // variable to store the servo position 
+const int maxDeg = 160;
+const int minDeg = 5;
+
+
+int D02 = 2; 
+int D04 = 4;
 int D08 = 8;
-int D09 = 9;
-int D10 = 10;
-int D11 = 11;
+int D12 = 12;
 int A00 = 0;
+int A01 = 1;
+
+const int outputPin = 9;    // pwm function will be disabled on pin 9 and 10 if using servo
+const int outputPin2 = 3; 
+
+int leftPressed = 0;
+int rightPressed = 0;
+int upPressed = 0;
+int downPressed = 0;
 
 typedef struct {
-        int ethernet_instruction_D08;
-        int ethernet_instruction_D09;
-        int ethernet_instruction_D10;
-        int ethernet_instruction_D11;
-        float ethernet_instruction_A00;
-        } D_A_variables_ethernet_arduino;
+        int PI_instruction_D02;
+        int PI_instruction_D04;
+        int PI_instruction_D08;
+        int PI_instruction_D12;
+        float PI_instruction_A00;
+        } D_A_variables_PI_arduino;
 
 class Ultrasonic {
 	public:
@@ -140,22 +159,27 @@ void setup()
        //three second delay for allowing the digitals to settle and go to zero
        delay(3000);
        
-       pinMode(D08, INPUT);
-       pinMode(D09, INPUT);
-       pinMode(D10, INPUT);
-       pinMode(D11, INPUT);
-       pinMode(A00, INPUT);
-       }
-       
-long make_D_A_reading(D_A_variables_ethernet_arduino &e);
+	pinMode(D02, INPUT);
+	pinMode(D04, INPUT);
+	pinMode(D08, INPUT);
+	pinMode(D12, INPUT);
+	pinMode(A00, INPUT);
+	pinMode(A01, INPUT);
+	
+	myservo.attach(outputPin);          // attaches the servo on pin 9 to the servo object 
+	myservo2.attach(outputPin2);        // attaches the servo on pin 3 to the servo object 
 
-long make_D_A_reading(D_A_variables_ethernet_arduino &e)
+	}
+       
+long make_D_A_reading(D_A_variables_PI_arduino &e);
+
+long make_D_A_reading(D_A_variables_PI_arduino &e)
         {
-        e.ethernet_instruction_D08 = digitalRead(D08);
-        e.ethernet_instruction_D09 = digitalRead(D09);
-        e.ethernet_instruction_D10 = digitalRead(D10);
-        e.ethernet_instruction_D11 = digitalRead(D11);
-        e.ethernet_instruction_A00 = analogRead(A00);
+        e.PI_instruction_D02 = digitalRead(D02);
+        e.PI_instruction_D04 = digitalRead(D04);
+        e.PI_instruction_D08 = digitalRead(D08);
+        e.PI_instruction_D12 = digitalRead(D12);
+        e.PI_instruction_A00 = analogRead(A00);
         }
 
 Ultrasonic ultrasonic7(7);
@@ -163,6 +187,45 @@ Ultrasonic ultrasonic5(5);
 
 void loop()
 	{
+	leftPressed = digitalRead(D04);
+	rightPressed = digitalRead(D02);
+	upPressed = digitalRead(D08);
+	downPressed = digitalRead(D12);
+	 
+	if(leftPressed){
+		if(pos < maxDeg) pos += 20; 
+		myservo.write(pos);                 // tell servo to go to position in variable ‘pos’ 
+		delay(5);
+		myservo.write(90);
+		pos -= 20;
+		} else
+ 
+	if(rightPressed){
+		if(pos > minDeg) pos -= 20;
+		myservo.write(pos);              // tell servo to go to position in variable ‘pos’ 
+		delay(5);
+		myservo.write(90);
+		pos += 20;
+		} else
+		delay(15);                       // waits 15ms for the servo to reach the position 
+
+	if(upPressed){
+		if(pos < maxDeg) pos += 20;
+		myservo2.write(pos);              // tell servo to go to position in variable ‘pos’ 
+		delay(5);
+		myservo2.write(90);
+		pos -= 20;
+		} else
+ 
+	if(downPressed){
+		if(pos > minDeg) pos -= 20;
+		myservo2.write(pos);              // tell servo to go to position in variable ‘pos’ 
+		delay(5);
+		myservo2.write(90);
+		pos += 20;
+		} else
+		delay(15);                       // waits 15ms for the servo to reach the position 
+
 	long RangeInCentimeters7;
 	long RangeInCentimeters5;
 	float distance7;
@@ -201,21 +264,21 @@ void loop()
 		  a = -1;//move backward
 		}
 
-        D_A_variables_ethernet_arduino X;
+        D_A_variables_PI_arduino X;
         make_D_A_reading(X);
-        //Serial.println(X.ethernet_instruction_D08);
-        //Serial.println(X.ethernet_instruction_D09);
-        //Serial.println(X.ethernet_instruction_D10);
-        //Serial.println(X.ethernet_instruction_D11);
-        //Serial.println(X.ethernet_instruction_A00);
+        //Serial.println(X.PI_instruction_D02);
+        //Serial.println(X.PI_instruction_D04);
+        //Serial.println(X.PI_instruction_D08);
+        //Serial.println(X.PI_instruction_D12);
+        //Serial.println(X.PI_instruction_A00);
         
-        if (X.ethernet_instruction_D08 == 0 && X.ethernet_instruction_D09 == 1 && X.ethernet_instruction_D10 == 0 && X.ethernet_instruction_D11 == 1)
+        if (X.PI_instruction_D02 == 0 && X.PI_instruction_D04 == 1 && X.PI_instruction_D08 == 0 && X.PI_instruction_D12 == 1)
                 {
                   a = 1; //override and move forward
                 } else {
                 //do nothing
                 };         
-        if (X.ethernet_instruction_D08 == 1 && X.ethernet_instruction_D09 == 0 && X.ethernet_instruction_D10 == 1 && X.ethernet_instruction_D11 == 0)
+        if (X.PI_instruction_D02 == 1 && X.PI_instruction_D04 == 0 && X.PI_instruction_D08 == 1 && X.PI_instruction_D12 == 0)
                 {
                   a = -1; //override and move backward
                 } else {
@@ -227,5 +290,6 @@ void loop()
 	maneuver(distance_setting_turning, calc_sonar_turning, distance_setting_front, sonar_front, 20, a);       // Drive levels set speeds
 
 	if ( i > 110 ){ Serial.println("Inside Main Program: ");  Serial.println("***Leaving Main Program*** ");} else	{//nothing
-        }
-}
+		}
+	}
+
