@@ -53,7 +53,7 @@ int a = 1;
 int b = 0;
 int c = 0;
 
-//Camerial Variables
+//Camerial Variables, Remember that Pins 5 & 7 are being used by the ultrasonic
 
 Servo myservo;  // create servo object, maximum of eight servo objects can be created 
 Servo myservo2; 
@@ -62,7 +62,6 @@ int pos = 90;    // variable to store the servo position
 const int maxDeg = 160;
 const int minDeg = 5;
 
-
 int D02 = 2; 
 int D04 = 4;
 int D08 = 8;
@@ -70,9 +69,12 @@ int D12 = 12;
 int A00 = 0;
 int A01 = 1;
 
+int D03 = 1;  //reserved for overide
+int D06 = 6;
+int D13 = 13;
+
 const int outputPin = 9;    // pwm function will be disabled on pin 9 and 10 if using servo
 const int outputPin2 = 3; 
-
 int leftPressed = 0;
 int rightPressed = 0;
 int upPressed = 0;
@@ -80,9 +82,12 @@ int downPressed = 0;
 
 typedef struct {
         int PI_instruction_D02;
+        int PI_instruction_D03;
         int PI_instruction_D04;
+        int PI_instruction_D06;
         int PI_instruction_D08;
         int PI_instruction_D12;
+        int PI_instruction_D13;
         float PI_instruction_A00;
         } D_A_variables_PI_arduino;
 
@@ -160,9 +165,12 @@ void setup()
        delay(3000);
        
 	pinMode(D02, INPUT);
+	pinMode(D03, INPUT);
 	pinMode(D04, INPUT);
+	pinMode(D06, INPUT);
 	pinMode(D08, INPUT);
 	pinMode(D12, INPUT);
+	pinMode(D13, INPUT);
 	pinMode(A00, INPUT);
 	pinMode(A01, INPUT);
 	
@@ -176,21 +184,33 @@ long make_D_A_reading(D_A_variables_PI_arduino &e);
 long make_D_A_reading(D_A_variables_PI_arduino &e)
         {
         e.PI_instruction_D02 = digitalRead(D02);
+        e.PI_instruction_D03 = digitalRead(D03);
         e.PI_instruction_D04 = digitalRead(D04);
+        e.PI_instruction_D06 = digitalRead(D06);
         e.PI_instruction_D08 = digitalRead(D08);
         e.PI_instruction_D12 = digitalRead(D12);
+        e.PI_instruction_D13 = digitalRead(D13);
         e.PI_instruction_A00 = analogRead(A00);
         }
 
-Ultrasonic ultrasonic7(7);
+Ultrasonic ultrasonic7(7);  //declaring here what pins are being used
 Ultrasonic ultrasonic5(5);
 
 void loop()
 	{
-	leftPressed = digitalRead(D04);
-	rightPressed = digitalRead(D02);
-	upPressed = digitalRead(D08);
-	downPressed = digitalRead(D12);
+	
+	D_A_variables_PI_arduino X;
+        make_D_A_reading(X);
+        //Serial.println(X.PI_instruction_D02);
+        //Serial.println(X.PI_instruction_D04);
+        //Serial.println(X.PI_instruction_D08);
+        //Serial.println(X.PI_instruction_D12);
+        //Serial.println(X.PI_instruction_A00);
+	
+	leftPressed = digitalRead(X.PI_instruction_D04);
+	rightPressed = digitalRead(X.PI_instruction_D02);
+	upPressed = digitalRead(X.PI_instruction_D08);
+	downPressed = digitalRead(X.PI_instruction_D12);
 	 
 	if(leftPressed){
 		if(pos < maxDeg) pos += 20; 
@@ -264,21 +284,15 @@ void loop()
 		  a = -1;//move backward
 		}
 
-        D_A_variables_PI_arduino X;
-        make_D_A_reading(X);
-        //Serial.println(X.PI_instruction_D02);
-        //Serial.println(X.PI_instruction_D04);
-        //Serial.println(X.PI_instruction_D08);
-        //Serial.println(X.PI_instruction_D12);
-        //Serial.println(X.PI_instruction_A00);
+
         
-        if (X.PI_instruction_D02 == 0 && X.PI_instruction_D04 == 1 && X.PI_instruction_D08 == 0 && X.PI_instruction_D12 == 1)
+        if (X.PI_instruction_D03 == 0 && X.PI_instruction_D06 == 1)
                 {
                   a = 1; //override and move forward
                 } else {
                 //do nothing
                 };         
-        if (X.PI_instruction_D02 == 1 && X.PI_instruction_D04 == 0 && X.PI_instruction_D08 == 1 && X.PI_instruction_D12 == 0)
+        if (X.PI_instruction_D03 == 1 && X.PI_instruction_D06 == 0)
                 {
                   a = -1; //override and move backward
                 } else {
