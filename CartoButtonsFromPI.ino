@@ -44,9 +44,9 @@ const int kpl = -12;                         // Proportional control constants
 const int kpr = -12;
 
 int i = 0;
-int distance_setting_turning=16;
+int distance_setting_turning=6;
 int sonar_turning;
-int distance_setting_front=6;
+int distance_setting_front=8;
 int sonar_front;
 int msTime=20;
 int a = 1;
@@ -126,10 +126,21 @@ long Ultrasonic::microsecondsToCentimeters(void)
 /*minimum movement in forward direction:    ST.drive(20);    delay(20);    ST.drive(0);    delay(800);*/
 void maneuver(int distance_setting_turning, int calc_sonar_turning, int distance_setting_front, int sonar_front, int msTime, int a)
 	{
-        ST.drive(40*a);
+        if (sonar_front <= 24 && sonar_front >= 8)  
+		{
+		  a = a;
+		} else if (sonar_front > 24) 
+		{
+		  a = 1; //move forward
+		} else if (sonar_front < 8)
+		{
+		  a = -1;//move backward
+		}
+  
+        ST.drive(40*a/3);
         delay(600);
     
-        ST.turn(calc_sonar_turning);
+        ST.turn(calc_sonar_turning/3);
         delay(20);
         
         ST.drive(0);
@@ -268,21 +279,10 @@ void loop()
 	sonar_turning = distance7;
 	sonar_front = distance5;
 	
-	distance_setting_turning = 12;
-	distance_setting_front = 18;  
 	
 	int calc_sonar_turning = (distance_setting_turning - sonar_turning) * kpr;
 
-	if (sonar_front >= 24 && sonar_front <= 12)  
-		{
-		  a = a;
-		} else if (sonar_front > 24) 
-		{
-		  a = 1; //move forward
-		} else if (sonar_front < 12)
-		{
-		  a = -1;//move backward
-		}
+	
 
 
         
@@ -306,4 +306,3 @@ void loop()
 	if ( i > 110 ){ Serial.println("Inside Main Program: ");  Serial.println("***Leaving Main Program*** ");} else	{//nothing
 		}
 	}
-
