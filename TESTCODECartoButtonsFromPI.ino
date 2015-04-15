@@ -1,5 +1,5 @@
 /***************************************************************************/
-//	Function: Measure the distance to obstacles in front and print the distance
+//	Function: T Measure the distance to obstacles in front and print the distance
 //			  value to the serial terminal.The measured distance is from 
 //			  the range 0 to 400cm(157 inches).
 //	Hardware: Ultrasonic Range sensor
